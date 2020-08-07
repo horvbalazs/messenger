@@ -1,0 +1,22 @@
+@import "../../scss/colors.scss";
+
+:local {
+    .Sidebar {
+        width: 400px;
+        height: 100%;
+        background-color: $Sidebar;
+        padding: 20px;
+    }
+
+    .Header {
+        text-align: center;
+    }
+
+    .AddConnection {
+        display: grid;
+
+        input {
+            margin-bottom: 10px;
+        }
+    }
+}

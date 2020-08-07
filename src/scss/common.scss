@@ -1,0 +1,50 @@
+@import "./colors.scss";
+:local {
+    .Main {
+        font-family: Arial, Helvetica, sans-serif;
+
+        button {
+            background-color: $PrimaryButton;
+            height: 50px;
+            border: $ActiveButton 2px solid;
+            border-radius: 15px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 14px;
+            color: $White;
+
+            &:focus {
+                outline: none;
+            }
+
+            &:active {
+                border-color: $DisabledButton;
+            }
+
+            &:hover {
+                background-color: $ActiveButton;
+                cursor: pointer;
+            }
+
+            &:disabled {
+                background-color: $DisabledButton;
+            }
+        }
+
+        input {
+            height: 30px;
+            border: $Black 2px solid;
+            border-radius: 5px;
+            padding: 5px 10px;
+            color: $Black;
+            font-size: 14px;
+
+            &:focus, &:active {
+                outline: none;
+                border-color: $DisabledButton;
+            }
+
+            transition: border-color .1s linear;
+        }
+    }
+}

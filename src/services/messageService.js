@@ -1,0 +1,37 @@
+import { Observable } from 'rxjs';
+
+class MessageService {
+
+    constructor() {
+        this.connections = [];
+    }
+
+    listenToMessages(connectionKey) {
+        return new Observable(observer => {
+            setInterval(() => {
+                observer.next({ date: Date.now(), text: Math.random() });
+            }, 2000);
+        });
+    }
+
+    listenToNewConnections() {
+        return new Observable(observer => { });
+    }
+
+    setUpConnection(connectionKey) {
+        return 'aaadfseneUNFEEuin';
+    }
+
+    getConnectionKey() {
+        return this.uuidv4();
+    }
+
+    uuidv4() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    }
+}
+
+export default new MessageService();
