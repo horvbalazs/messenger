@@ -18,12 +18,13 @@ class MessageService {
             this.subscribe = subscribe;
             window.WebSocket = window.WebSocket || window.MozWebSocket;
 
-            this.connection = new WebSocket('ws://127.0.0.1:1337');
+            this.connection = new WebSocket('ws://p2pmessenger.herokuapp.com/');
 
             this.connection.onopen = function () {
             };
 
             this.connection.onerror = function (error) {
+                console.log(error);
             };
 
             this.connection.onmessage = (message) => {
@@ -100,7 +101,7 @@ class MessageService {
         const encrypted = localStorage.getItem('p2p_messenger_messages');
         const decrypted = JSON.parse(atob(CryptoJS.AES.decrypt(encrypted, connectionKey)));
         decrypted[targetConnectionKey].push(message);
-        localStorage.setItem('p2p_messenger_messages', CryptoJS.AES.encrypt(JSON.stringify(decrypted), connectionKey));
+        localStorage.setItem('p2p_messenger_messages', this.encrypt(decrypted), connectionKey);
     }
 
     // Private methods
