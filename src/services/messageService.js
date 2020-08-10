@@ -1,37 +1,117 @@
 import { Observable } from 'rxjs';
+import CryptoJS from 'crypto-js';
 
 class MessageService {
+    static instance = null;
+    connectionKey = '';
 
-    constructor() {
-        this.connections = [];
+    static getInstance() {
+        if (!this.instance) {
+            this.instance = new MessageService();
+        }
+
+        return this.instance;
     }
 
-    listenToMessages(connectionKey) {
-        return new Observable(observer => {
-            setInterval(() => {
-                observer.next({ date: Date.now(), text: Math.random() });
-            }, 2000);
-        });
+    setUpConnection() {
+        return new Observable(subscribe => {
+            this.subscribe = subscribe;
+            window.WebSocket = window.WebSocket || window.MozWebSocket;
+
+            this.connection = new WebSocket('ws://127.0.0.1:1337');
+
+            this.connection.onopen = function () {
+            };
+
+            this.connection.onerror = function (error) {
+            };
+
+            this.connection.onmessage = (message) => {
+                try {
+                    var json = JSON.parse(message.data);
+                } catch (e) {
+                    console.log('This doesn\'t look like a valid JSON: ',
+                        message.data);
+                    return;
+                }
+
+                const data = JSON.parse(message.data);
+
+                if (data.action === 'NEW_MESSAGE') {
+                    this.saveMessage(data.sender, data.text, true);
+                } else if (data.action === 'CONNECTION_ACCEPTED') {
+                    this.connectionKey = data.connectionKey;
+                    localStorage.setItem('p2p_messenger_messages', this.encrypt({}, this.connectionKey));
+                    subscribe.next(data);
+                } else {
+                    subscribe.next(data);
+                }
+            };
+        })
     }
 
-    listenToNewConnections() {
-        return new Observable(observer => { });
+    addConnection(connectionKey) {
+        this.subscribe.next({ action: 'NEW_CONNECTION', connectionKey });
     }
 
-    setUpConnection(connectionKey) {
-        return 'aaadfseneUNFEEuin';
+    sendMessage(targetConnectionKey, messageData) {
+        this.connection.send(JSON.stringify({ action: 'SEND_MESSAGE', sender: this.connectionKey, text: messageData, recipient: targetConnectionKey }));
+        this.saveMessage(targetConnectionKey, messageData);
     }
 
-    getConnectionKey() {
-        return this.uuidv4();
+    openChatWindow(connectionKey) {
+        this.subscribe.next({ action: 'OPEN_CHAT_WINDOW', connectionKey })
     }
 
-    uuidv4() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
+    getMessages(targetConnectionKey) {
+        const encrypted = localStorage.getItem('p2p_messenger_messages');
+        const decrypted = this.decrypt(encrypted, this.connectionKey);
+
+        if (!decrypted[targetConnectionKey]) {
+            return [];
+        }
+
+        return decrypted[targetConnectionKey];
+    }
+
+    saveMessage(targetConnectionKey, message, recieved = false) {
+        const encrypted = localStorage.getItem('p2p_messenger_messages');
+        const decrypted = this.decrypt(encrypted, this.connectionKey);
+        if (!decrypted[targetConnectionKey]) {
+            decrypted[targetConnectionKey] = [];
+        }
+        decrypted[targetConnectionKey].push({ message, recieved });
+        localStorage.setItem('p2p_messenger_messages', this.encrypt(decrypted, this.connectionKey));
+        this.subscribe.next({ action: 'NEW_MESSAGE', messages: decrypted[targetConnectionKey], sender: targetConnectionKey });
+    }
+
+    getLastMessage(targetConnectionKey) {
+        const encrypted = localStorage.getItem('p2p_messenger_messages');
+        let decrypted = this.decrypt(encrypted, this.connectionKey);
+
+        if (!decrypted[targetConnectionKey]) {
+            return null;
+        }
+
+        return decrypted[targetConnectionKey].reverse()[0];
+    }
+
+    removeConnection() {
+        const encrypted = localStorage.getItem('p2p_messenger_messages');
+        const decrypted = JSON.parse(atob(CryptoJS.AES.decrypt(encrypted, connectionKey)));
+        decrypted[targetConnectionKey].push(message);
+        localStorage.setItem('p2p_messenger_messages', CryptoJS.AES.encrypt(JSON.stringify(decrypted), connectionKey));
+    }
+
+    // Private methods
+
+    encrypt(obj, key) {
+        return CryptoJS.AES.encrypt(JSON.stringify(obj), key);
+    }
+
+    decrypt(encrypted, key) {
+        return JSON.parse(CryptoJS.AES.decrypt(encrypted, key).toString(CryptoJS.enc.Utf8));
     }
 }
 
-export default new MessageService();
+export default MessageService.getInstance();

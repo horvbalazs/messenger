@@ -1,28 +1,21 @@
 import React from 'react';
 import MessageService from '../../services/messageService';
 import * as styles from './sidebar.scss';
+import Conversation from '../conversation/conversation';
 
 class Sidebar extends React.Component {
 
     constructor(props) {
         super(props);
-        this.connections = [];
-        this.messageService = MessageService;
-        this.messageService.listenToNewConnections().subscribe(connections => {
-            this.connections = connections;
-        });
+
+        this.connectionKey = '';
     }
 
-    newConnection(connectionKey) {
-        this.messageService.setUpConnection(connectionKey);
-    }
-
-    openMessageWindow() {
-
+    newConnection() {
+        MessageService.addConnection(this.connectionKey);
     }
 
     render() {
-        let connection = '';
         return (
             <div className={styles.Sidebar} >
                 <div className={styles.Header}>
@@ -30,12 +23,24 @@ class Sidebar extends React.Component {
                     <h3>{this.props.connectionKey}</h3>
                 </div>
                 <div className={styles.AddConnection}>
-                    <input placeholder="Copy your friend's connection string here" />
-                    <button click={this.newConnection(connection)}>Set up connection</button>
+                    <input onChange={(el) => { this.connectionKey = el.target.value }} placeholder="Copy your friend's connection string here" />
+                    <button onClick={() => this.newConnection()}>Set up connection</button>
                 </div>
                 {
-                    this.connections.map(connection =>
-                        <button click={this.openMessageWindow(connection.connectionKey)}></button>)
+                    this.props.connections.length > 0 ?
+                        <div className={styles.Divider}></div> : ''
+                }
+                {
+                    this.props.connections.map((connection, index) => {
+                        const lastMessage = MessageService.getLastMessage(connection);
+                        return <Conversation
+                            key={index}
+                            connectionKey={connection}
+                            message={lastMessage}
+                            active={this.props.active === connection}
+                            unread={lastMessage && lastMessage.recieved && this.props.active !== connection}
+                        ></Conversation>
+                    })
                 }
             </div>
         );

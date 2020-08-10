@@ -1,0 +1,29 @@
+@import "../../../scss/colors.scss";
+
+:local {
+    .Message {
+        margin-bottom: 15px;
+        text-align: right;
+
+        span {
+            height: 20px;
+            max-width: 40%;
+            padding: 10px 20px;
+            background-color: $Green;
+            color: $White;
+            border-radius: 10px 10px 10px 0;
+            line-break: anywhere;
+            display: inline-block;
+            height: auto;
+        }
+    }
+
+    .Recieved {
+        text-align: left;
+
+        span {
+            background-color: $DarkGrey;
+            border-radius: 10px 10px 0 10px;
+        }
+    }
+}

@@ -2,7 +2,7 @@
 
 :local {
     .Sidebar {
-        width: 400px;
+        width: 30%;
         height: 100%;
         background-color: $Sidebar;
         padding: 20px;
@@ -18,5 +18,10 @@
         input {
             margin-bottom: 10px;
         }
+    }
+
+    .Divider {
+        margin: 25px;
+        border: solid 1px #ccc;
     }
 }
