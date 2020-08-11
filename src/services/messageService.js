@@ -18,7 +18,8 @@ class MessageService {
             this.subscribe = subscribe;
             window.WebSocket = window.WebSocket || window.MozWebSocket;
 
-            this.connection = new WebSocket('ws://p2pmessenger.herokuapp.com/');
+            var HOST = location.origin.replace(/^http/, 'ws');
+            this.connection = new WebSocket(HOST);
 
             this.connection.onopen = function () {
             };
